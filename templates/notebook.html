@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}{{ notebook.name }} · 繁字詞本{% endblock %}
+
+{% block content %}
+<nav class="crumbs"><a href="/">← 所有詞本</a></nav>
+
+<header class="notebook-header">
+  <h1>{{ notebook.name }}</h1>
+  <span class="badge">{{ characters.len() }} 字</span>
+</header>
+
+<form class="inline-form" method="post" action="/notebooks/{{ notebook.id }}/characters">
+  <input type="text" name="character" placeholder="輸入繁體字，可一次貼上多個"
+         required autocomplete="off" autofocus>
+  <button type="submit">加入詞本</button>
+</form>
+
+{% match error %}
+  {% when Some with (msg) %}<p class="notice">{{ msg }}</p>
+  {% when None %}
+{% endmatch %}
+
+{% if characters.is_empty() %}
+  <p class="empty">這個詞本還是空的，加入第一個字吧。</p>
+{% else %}
+  <ul class="char-grid">
+    {% for c in characters %}
+      <li class="char-card">
+        <div class="char-head">
+          <span class="glyph">{{ c.character }}</span>
+          <form method="post"
+                action="/notebooks/{{ notebook.id }}/characters/{{ c.id }}/delete">
+            <button class="icon-btn" type="submit" title="從詞本移除">×</button>
+          </form>
+        </div>
+        <div class="definition">
+          {% match c.definition %}
+            {% when Some with (d) %}{{ d }}
+            {% when None %}<span class="pending">釋義待補</span>
+          {% endmatch %}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}

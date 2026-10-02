@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}我的詞本 · 繁字詞本{% endblock %}
+
+{% block content %}
+<h1>我的詞本</h1>
+
+<form class="inline-form" method="post" action="/notebooks">
+  <input type="text" name="name" placeholder="新詞本名稱，例如：論語生字"
+         required maxlength="60" autocomplete="off">
+  <button type="submit">建立</button>
+</form>
+
+{% match error %}
+  {% when Some with (msg) %}<p class="notice">{{ msg }}</p>
+  {% when None %}
+{% endmatch %}
+
+{% if notebooks.is_empty() %}
+  <p class="empty">還沒有任何詞本，先建立一個吧。</p>
+{% else %}
+  <ul class="notebook-list">
+    {% for nb in notebooks %}
+      <li>
+        <a class="notebook-link" href="/notebooks/{{ nb.id }}">
+          <span class="notebook-name">{{ nb.name }}</span>
+          <span class="notebook-count">{{ nb.char_count }} 字</span>
+        </a>
+        <form method="post" action="/notebooks/{{ nb.id }}/delete"
+              onsubmit="return confirm('確定要刪除「{{ nb.name }}」嗎？');">
+          <button class="ghost" type="submit">刪除</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}
